@@ -5,7 +5,7 @@ const request = require('request');
 const locale = 'en';
 const recastAIRequestToken = "efa320826368b2c3b53bc418beed2f4a"; 
 
-const httpProxy = "https://8ae37f7e.ngrok.io";
+const httpProxy = "https://8ae37f7e.ngrok.io"; // change it accordingly. It is the endpoint to movie-bot-server
 
 const connect = new recastai.connect(recastAIRequestToken)
 const client = new recastai.request(recastAIRequestToken, locale);
@@ -27,7 +27,6 @@ function sendReply(type, text) {
 function onMessage (message) {
 	var content = message.content
 	currentMessage = message;
-	console.log(content);
 	client.analyseText(content)
 	.then(onRecastAIReply.bind(this))
 	.catch((e) => {
@@ -37,7 +36,6 @@ function onMessage (message) {
 
 function onRecastAIReply(aiResponse) {
 	const intent = aiResponse.intent();
-	console.log(JSON.stringify(aiResponse));
 
 	if (!intent) {
 		sendReply("text", "I did not get your intent...please retry");
@@ -47,14 +45,12 @@ function onRecastAIReply(aiResponse) {
 	switch(intent.slug) {
 		case "discover-movies":
 			const payload = prepareMovieRequest(aiResponse);
-			console.log(httpProxy + '/' + intent.slug + '/');
 			const options = {
 				uri: httpProxy + '/' + intent.slug + '/',
 				method: 'POST',
 				json: payload
 			};
 			request.post(options, (err, httpResponse, body) => {
-				console.log(body);
 				if (err) {
 					return console.error('request failed:', err);
 				}
